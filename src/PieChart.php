@@ -12,7 +12,22 @@ class PieChart extends Chart
 {
     /** @var string Type of chart */
     public $type = 'pie';
+    
 
+    protected function makeExpressable($row, $key)
+    {
+        switch($row->getField($key)->type){
+            case 'time':
+                return $row->get($key)->format('h:i:s');
+                break;
+            case 'date':
+                 return $row->get($key)->format('Y-m-d');
+                break;
+            default:
+                 return $row->get($key);
+        }
+    }
+    
     /**
      * Specify data source for this chart. The column must contain
      * the textual column first followed by sumber of data columns:
@@ -51,9 +66,9 @@ class PieChart extends Chart
 
         // Prepopulate data-sets
         foreach ($model as $row) {
-            $this->labels[] = $row->get($title_column);
+            $this->labels[] = $this->makeExpressable($row, $title_column);
             foreach ($this->dataSets as $key => &$dataset) {
-                $dataset['data'][] = $row->get($key);
+                $dataset['data'][] = $this->makeExpressable($row, $key);
                 $color = array_shift($colors[$key]);
                 $dataset['backgroundColor'][] = $color[0];
                 $dataset['borderColor'][] = $color[1];

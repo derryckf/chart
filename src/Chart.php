@@ -50,8 +50,9 @@ class Chart extends View
         parent::init();
 
         if ($this->js_include) {
-            $this->getApp()->requireJS('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js');
-        }
+                    $this->getApp()->requireJS('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.js');
+                    //$this->getApp()->requireJS('https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.bundle.js');
+         }
     }
 
     /**
@@ -115,6 +116,20 @@ class Chart extends View
 
         return $this;
     }
+    
+    protected function makeExpressable($row, $key)
+    {
+        switch($row->getField($key)->type){
+            case 'time':
+                return $row->get($key)->format('h:i:s');
+                break;
+            case 'date':
+                 return $row->get($key)->format('Y-m-d');
+                break;
+            default:
+                 return $row->get($key);
+        }
+    }
 
     /**
      * Specify data source for this chart. The column must contain
@@ -153,9 +168,9 @@ class Chart extends View
 
         // Prepopulate data-sets
         foreach ($model as $row) {
-            $this->labels[] = $row->get($title_column);
+            $this->labels[] = $this->makeExpressable($row, $title_column);
             foreach ($this->dataSets as $key => &$dataset) {
-                $dataset['data'][] = $row->get($key);
+                $dataset['data'][] = $this->makeExpressable($row, $key);
             }
         }
 
